@@ -3,28 +3,26 @@
   "adapter": "adapter.py",
   "name": "Minesweeper",
   "description": "Can an LLM safely clear a 5x5 minesweeper grid with 5 mines?",
-
   "binding_vow": {
-    "version": "1.0.0",
+    "version": "1.0.1",
     "tier": "tier1",
     "description": "Agent reveals cells on a 5x5 minesweeper board via JSON actions. Reward increments per safe cell revealed, reaching 1.0 on full clear.",
-
     "observation_space": {
       "type": "json",
       "description": "{ \"board\": string, \"instruction\"|\"error\"|\"cells_revealed\"|\"safe_remaining\": ... }"
     },
-
     "action_space": {
       "type": "json",
       "description": "{ \"row\": int (0-4), \"col\": int (0-4) }"
     },
-
     "reward": {
       "type": "scalar",
-      "range": { "low": 0.0, "high": 1.0 },
+      "range": {
+        "low": 0.0,
+        "high": 1.0
+      },
       "description": "Incremental: each safe cell revealed adds 1/20. Sums to 1.0 on full clear."
     },
-
     "episode": {
       "max_steps": 30,
       "deterministic_reset": true,
@@ -32,10 +30,8 @@
       "parallel_episodes": 1,
       "observability": "partial"
     },
-
     "techniques": []
   },
-
   "scoring": {
     "primary_metric": "avg_reward",
     "higher_is_better": true,
