@@ -1,49 +1,49 @@
 {
-  "id": "my-env",
+  "id": "minesweeper-env",
   "adapter": "adapter.py",
-  "name": "My Environment",
-  "description": "One-sentence description of what this benchmark evaluates.",
+  "name": "Minesweeper",
+  "description": "Can an LLM safely clear a 5x5 minesweeper grid with 5 mines?",
 
   "binding_vow": {
     "version": "1.0.0",
     "tier": "tier1",
-    "description": "Longer description of the task and what makes a good agent.",
+    "description": "Agent reveals cells on a 5x5 minesweeper board via JSON actions. Reward increments per safe cell revealed, reaching 1.0 on full clear.",
 
     "observation_space": {
       "type": "json",
-      "description": "{ \"question\": string }"
+      "description": "{ \"board\": string, \"instruction\"|\"error\"|\"cells_revealed\"|\"safe_remaining\": ... }"
     },
 
     "action_space": {
-      "type": "text",
-      "description": "Free-text answer from the agent"
+      "type": "json",
+      "description": "{ \"row\": int (0-4), \"col\": int (0-4) }"
     },
 
     "reward": {
-      "type": "binary",
+      "type": "scalar",
       "range": { "low": 0.0, "high": 1.0 },
-      "description": "1.0 if correct, 0.0 otherwise"
+      "description": "Incremental: each safe cell revealed adds 1/20. Sums to 1.0 on full clear."
     },
 
     "episode": {
-      "max_steps": 10,
+      "max_steps": 30,
       "deterministic_reset": true,
       "supports_seed": true,
       "parallel_episodes": 1,
-      "observability": "full"
+      "observability": "partial"
     },
 
     "techniques": []
   },
 
   "scoring": {
-    "primary_metric": "accuracy",
+    "primary_metric": "avg_reward",
     "higher_is_better": true,
     "metrics": [
       {
-        "name": "accuracy",
+        "name": "avg_reward",
         "type": "episode_reward",
-        "aggregation": "pass_rate"
+        "aggregation": "mean"
       }
     ]
   }
