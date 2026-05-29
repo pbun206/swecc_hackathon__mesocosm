@@ -39,16 +39,19 @@ class MyEnv(BaseEnv):
         self._revealed = [[False] * COLS for _ in range(ROWS)]
 
         return {
-            "board": self._render_board(),
-            "instruction": (
-                f"Minesweeper. {ROWS}x{COLS} grid, {NUM_MINES} mines. "
-                f"Numbers show adjacent mine count. '?' = hidden. "
-                f"Do NOT click on a number — only click on '?' cells. "
-                f"Reveal all {SAFE_CELLS} safe cells to win. "
-                f"Your first move is always safe. "
-                f"Respond with ONLY JSON, no other text. "
-                f'Example: {{\"row\": 2, \"col\": 3}}'
-            ),
+            "data": {
+                "board": self._render_board(),
+                "instruction": (
+                    f"Minesweeper. {ROWS}x{COLS} grid, {NUM_MINES} mines. "
+                    f"Numbers show adjacent mine count. '?' = hidden. "
+                    f"Do NOT click on a number — only click on '?' cells. "
+                    f"Reveal all {SAFE_CELLS} safe cells to win. "
+                    f"Your first move is always safe. "
+                    f"Respond with ONLY JSON, no other text. "
+                    f'Example: {{\"row\": 2, \"col\": 3}}'
+                ),
+            },
+            "system_prompt": SYSTEM,
         }
 
     def _place_mines(self, safe_row: int, safe_col: int) -> None:
