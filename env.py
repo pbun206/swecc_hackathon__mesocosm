@@ -15,8 +15,9 @@ NUM_MINES = 5
 SAFE_CELLS = ROWS * COLS - NUM_MINES
 MAX_STEPS = 30
 SYSTEM = (
-    "You are playing Minesweeper. Output ONLY a JSON object on a single line: "
-    '{"row": r, "col": c}. No explanation, no commentary, no extra text.'
+    "You are playing Minesweeper. "
+    'Your entire response must be exactly: {"row": R, "col": C} where R and C are integers. '
+    "No wrapper object. No \"action\" key. No explanation. No markdown. Just the JSON."
 )
 
 
@@ -144,19 +145,37 @@ class MyEnv(BaseEnv):
 
     def _parse_action(self, action: Any) -> tuple[int, int, str | None]:
         try:
-            if isinstance(action, str):
-                match = re.search(r"\{[^}]+\}", action)
-                if match:
-                    action = json.loads(match.group())
-                else:
-                    action = json.loads(action)
-            row, col = int(action["row"]), int(action["col"])
-        except (json.JSONDecodeError, KeyError, TypeError, ValueError):
-            return 0, 0, 'Invalid action. Send JSON: {"row": r, "col": c}'
+            if isinstance(action, dict):
+                if "action" in action and isinstance(action["action"], dict):
+                    action = action["action"]
+                row, col = int(action["row"]), int(action["col"])
+                return self._validate_bounds(row, col)
 
+            text = str(action)
+
+            for m in re.finditer(r"\{[^{}]*\}", text):
+                try:
+                    obj = json.loads(m.group())
+                    if "row" in obj and "col" in obj:
+                        return self._validate_bounds(int(obj["row"]), int(obj["col"]))
+                except (json.JSONDecodeError, KeyError, ValueError):
+                    continue
+
+            m = re.search(r"[\"']?row[\"']?\s*[:=]\s*(\d+).*?[\"']?col[\"']?\s*[:=]\s*(\d+)", text, re.IGNORECASE)
+            if m:
+                return self._validate_bounds(int(m.group(1)), int(m.group(2)))
+
+            nums = re.findall(r"\b([0-4])\b", text)
+            if len(nums) >= 2:
+                return self._validate_bounds(int(nums[0]), int(nums[1]))
+
+        except (TypeError, ValueError):
+            pass
+        return 0, 0, 'Could not parse move. Send: {"row": r, "col": c}'
+
+    def _validate_bounds(self, row: int, col: int) -> tuple[int, int, str | None]:
         if not (0 <= row < ROWS and 0 <= col < COLS):
             return 0, 0, f"Out of bounds. row: 0-{ROWS - 1}, col: 0-{COLS - 1}"
-
         return row, col, None
 
     def _adjacent_mines(self, row: int, col: int) -> int:

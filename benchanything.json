@@ -4,7 +4,7 @@
   "name": "Minesweeper",
   "description": "Can an LLM safely clear a 5x5 minesweeper grid with 5 mines?",
   "binding_vow": {
-    "version": "1.0.2",
+    "version": "1.0.3",
     "tier": "tier1",
     "description": "Agent reveals cells on a 5x5 minesweeper board via JSON actions. Reward increments per safe cell revealed, reaching 1.0 on full clear.",
     "observation_space": {
@@ -12,8 +12,8 @@
       "description": "{ \"board\": string, \"instruction\"|\"error\"|\"cells_revealed\"|\"safe_remaining\": ... }"
     },
     "action_space": {
-      "type": "json",
-      "description": "{ \"row\": int (0-4), \"col\": int (0-4) }"
+      "type": "text",
+      "description": "Row and column to reveal, e.g. row 2 col 3"
     },
     "reward": {
       "type": "scalar",
